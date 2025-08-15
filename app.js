@@ -59,7 +59,7 @@ app.post('/api/notes', async (req, res) => {
     res.status(201).json(newNote);
 });
 
-// Delete a note
+
 app.delete('/api/notes/:id', async (req, res) => {
     const id = parseInt(req.params.id);
     let notes = await loadNotes();
