@@ -1,32 +1,26 @@
-// 1. Import the 'fs' module (File System)
 const fs = require('fs');
 
-// 2. Function to load existing notes
+// Load existing notes
 function loadNotes() {
     try {
-        const dataBuffer = fs.readFileSync('notes.json'); 
-        const dataJSON = dataBuffer.toString();
-        return JSON.parse(dataJSON);
+        const dataBuffer = fs.readFileSync('notes.json');
+        return JSON.parse(dataBuffer.toString());
     } catch (e) {
         return [];
     }
 }
 
-// 3. Function to save notes
+// Save notes
 function saveNotes(notes) {
-    const dataJSON = JSON.stringify(notes, null, 2); // null,2 makes JSON pretty
-    fs.writeFileSync('notes.json', dataJSON);
+    fs.writeFileSync('notes.json', JSON.stringify(notes, null, 2));
 }
 
-// 4. Function to add a new note (with duplicate check)
+// Add a note (with duplicate check)
 function addNote(title, body) {
     const notes = loadNotes();
-
-    // Check if note with same title exists
     const duplicateNote = notes.find((note) => note.title === title);
 
     if (!duplicateNote) {
-        // If no duplicate, add it
         notes.push({ title, body });
         saveNotes(notes);
         console.log(`✅ Note "${title}" added successfully!`);
@@ -35,7 +29,18 @@ function addNote(title, body) {
     }
 }
 
-// 5. Test adding notes
-addNote('Shopping List', 'Eggs, Milk, Bread');
-addNote('Reminder', 'Meeting at 10 AM');
-addNote('Shopping List', 'This should NOT be added'); // Duplicate test
+// Get user input from terminal
+const command = process.argv[2]; // The action: add, list, etc.
+const title = process.argv[3];   // The note title
+const body = process.argv[4];    // The note body
+
+// Handle commands
+if (command === 'add') {
+    if (!title || !body) {
+        console.log("⚠️ Please provide both a title and body for the note.");
+    } else {
+        addNote(title, body);
+    }
+} else {
+    console.log("❓ Unknown command. Use: add <title> <body>");
+}
