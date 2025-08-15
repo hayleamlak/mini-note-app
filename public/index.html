@@ -17,44 +17,67 @@
     <ul id="notesList"></ul>
 
     <script>
-        // Theme toggle
+        const API_URL = '/api/notes';
+
+        // Dark mode toggle
         const themeBtn = document.getElementById('themeToggle');
         themeBtn.addEventListener('click', () => {
             document.body.classList.toggle('dark-mode');
         });
 
-        // Fetch and display notes
+        // Fetch notes
         async function fetchNotes() {
-            const res = await fetch('/api/notes');
+            const res = await fetch(API_URL);
             const notes = await res.json();
             const list = document.getElementById('notesList');
             list.innerHTML = '';
 
             notes.forEach(note => {
                 const li = document.createElement('li');
-                li.textContent = note.title;
 
+                const span = document.createElement('span');
+                const created = note.createdAt ? new Date(note.createdAt).toLocaleString() : 'Unknown';
+                span.textContent = `${note.title} (Created: ${created})`;
+                li.appendChild(span);
+
+                // Edit button
+                const editBtn = document.createElement('button');
+                editBtn.textContent = 'Edit';
+                editBtn.classList.add('edit-btn');
+                editBtn.addEventListener('click', async () => {
+                    const newTitle = prompt('Enter new title', note.title);
+                    if (!newTitle) return;
+
+                    await fetch(`${API_URL}/${note.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title: newTitle })
+                    });
+                    fetchNotes();
+                });
+                li.appendChild(editBtn);
+
+                // Delete button
                 const delBtn = document.createElement('button');
                 delBtn.textContent = 'Delete';
                 delBtn.classList.add('delete-btn');
                 delBtn.addEventListener('click', async () => {
-                    li.style.animation = 'fadeOut 0.5s forwards';
-                    await fetch(`/api/notes/${note.id}`, { method: 'DELETE' });
-                    setTimeout(fetchNotes, 500);
+                    await fetch(`${API_URL}/${note.id}`, { method: 'DELETE' });
+                    fetchNotes();
                 });
-
                 li.appendChild(delBtn);
+
                 list.appendChild(li);
             });
         }
 
-        // Add new note
+        // Add note
         async function addNote() {
             const titleInput = document.getElementById('noteTitle');
             const title = titleInput.value.trim();
             if (!title) return alert('Enter a title');
 
-            const res = await fetch('/api/notes', {
+            const res = await fetch(API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ title })
