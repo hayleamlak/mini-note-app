@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Notes App</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        input, button { padding: 5px; margin: 5px; }
+        li { margin-bottom: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Notes App</h1>
+
+    <h3>Add a Note</h3>
+    <input type="text" id="noteTitle" placeholder="Enter note title">
+    <button onclick="addNote()">Add Note</button>
+
+    <h3>All Notes</h3>
+    <ul id="notesList"></ul>
+
+    <script>
+        async function fetchNotes() {
+            const res = await fetch('/api/notes');
+            const notes = await res.json();
+            const list = document.getElementById('notesList');
+            list.innerHTML = '';
+            notes.forEach(note => {
+                const li = document.createElement('li');
+                li.textContent = note.title + ' ';
+                const delBtn = document.createElement('button');
+                delBtn.textContent = 'Delete';
+                delBtn.onclick = () => deleteNote(note.id);
+                li.appendChild(delBtn);
+                list.appendChild(li);
+            });
+        }
+
+        async function addNote() {
+            const title = document.getElementById('noteTitle').value;
+            if (!title) return alert('Enter a title');
+
+            const res = await fetch('/api/notes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title })
+            });
+
+            if (res.status === 201) {
+                document.getElementById('noteTitle').value = '';
+                fetchNotes();
+            } else {
+                const err = await res.json();
+                alert(err.error);
+            }
+        }
+
+        async function deleteNote(id) {
+            await fetch(`/api/notes/${id}`, { method: 'DELETE' });
+            fetchNotes();
+        }
+
+        // Load notes on page load
+        fetchNotes();
+    </script>
+</body>
+</html>
