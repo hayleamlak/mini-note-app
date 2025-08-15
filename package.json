@@ -8,5 +8,16 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hayleamlak/mini-note-app.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hayleamlak/mini-note-app/issues"
+  },
+  "homepage": "https://github.com/hayleamlak/mini-note-app#readme",
+  "description": "",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
 }
